@@ -1,5 +1,6 @@
 const cryptoHash = require('./cryptoHash');
 
+
 describe('cryptoHash()', () => {
 
     // test if function can crypt to SHA-256 Hash

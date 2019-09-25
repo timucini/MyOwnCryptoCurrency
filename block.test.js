@@ -1,13 +1,18 @@
+const hexToBinary = require('hex-to-binary');
 const Block = require('./block'); 
-const { GENESIS_BLOCK } = require('./config');
+const { GENESIS_BLOCK, MINE_RATE } = require('./config');
 const cryptoHash = require('./cryptoHash');
 
 describe('Block', () => {
-    const timestamp = 'example-date';
+    const timestamp = 2000;
     const lastHash = 'example-lastHash';
     const hash = 'abc-hash';
     const data = ['blockchain', 'data'];
-    const block = new Block({ timestamp, lastHash, hash, data});
+    const nonce = 1;
+    const difficulty = 1;
+    const block = new Block({ timestamp, lastHash, hash, data, nonce, difficulty });
+
+
 
 
     //test if a block has valid values
@@ -16,6 +21,8 @@ describe('Block', () => {
         expect(block.lastHash).toEqual(lastHash);
         expect(block.hash).toEqual(hash);
         expect(block.data).toEqual(data);
+        expect(block.nonce).toEqual(nonce);
+        expect(block.difficulty).toEqual(difficulty);
     });
 
 
@@ -56,8 +63,45 @@ describe('Block', () => {
         // new mined Block need a valid sha256 hash with given inputs
         it('created a valid SHA-256 `hash` for new block', () => {
             expect(minedBlock.hash)
-                .toEqual(cryptoHash(minedBlock.timestamp, lastBlock.hash, data));
+                .toEqual(
+                    cryptoHash(
+                        minedBlock.timestamp,
+                        minedBlock.nonce,
+                        minedBlock.difficulty,
+                        lastBlock.hash,
+                        data
+                    )
+                );
+        });
+        it('sets a `hash` that matches the difficulty criteria', () => {
+            expect(hexToBinary(minedBlock.hash).substring(0, minedBlock.difficulty))
+                .toEqual('0'.repeat(minedBlock.difficulty));
+        });
+        it('adjusts the difficulty', () => {
+            const possibleResult = [lastBlock.difficulty+1, lastBlock.difficulty-1];
+            // the difficulty of a new block should be either the difficulty of the last block -1 or +1
+            expect(possibleResult.includes(minedBlock.difficulty)).toBe(true);
         });
     });
+    describe('adjustDifficulty()', () => {
+        it('should raise difficulty for a new mined block', () => {
+           expect(Block.adjustDifficulty({ 
+               // mining a new block was shorten than the expected mine rate ( in this test 100 milisecs) 
+               // so it the new difficulty for a new mined block should be higher than before
+               originalBlock: block, timestamp: block.timestamp + MINE_RATE - 100 })).toEqual(block.difficulty+1); 
+        });
+        it('should lower difficulty for a new mined block', () =>{
+            expect(Block.adjustDifficulty({
+                 // mining a new block was longer than the expected mine rate ( in this test 100 milisecs) 
+               // so it the new difficulty for a new mined block should be lower than before
+                originalBlock: block, timestamp: block.timestamp + MINE_RATE + 100 })).toEqual(block.difficulty-1);
+        });
+        it('should have a lower limit of 1', () => {
+            block.difficulty = -1;
+            // diffulty cant be lower than 1
+            expect(Block.adjustDifficulty({ originalBlock: block})).toEqual(1);
+        })
+    });
 });
+
 
