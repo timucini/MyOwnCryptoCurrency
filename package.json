@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest --watchAll",
     "index": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "npm run start-redis && nodemon index.js",
+    "start-redis": "cd redis && redis-server.exe redis.windows.conf "
   },
   "keywords": [],
   "author": "Timur Burkholz",
@@ -18,6 +19,8 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
-    "hex-to-binary": "^1.0.1"
+    "hex-to-binary": "^1.0.1",
+    "pubnub": "^4.21.6",
+    "redis": "^2.8.0"
   }
 }
