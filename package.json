@@ -8,7 +8,7 @@
     "index": "node index.js",
     "dev": "nodemon index.js",
     "dev-peer": "cross-env GENERATE_PEER_PORT='true' nodemon index.js",
-    "start-redis": "cd redis && redis-cli.exe "
+    "start-redis": "cd redis && redis-server.exe redis.windows.conf "
   },
   "jest": {
     "testEnvironment": "node"
