@@ -15,4 +15,7 @@ const GENESIS_BLOCK = {
     data: []
 };
 
-module.exports = { GENESIS_BLOCK, MINE_RATE };
+const STARTING_BALANCE = 1000;
+
+
+module.exports = { GENESIS_BLOCK, MINE_RATE, STARTING_BALANCE };
