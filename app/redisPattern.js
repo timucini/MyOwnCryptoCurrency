@@ -2,12 +2,14 @@ const redis = require('redis');
 
 const CHANNELS = {
     TEST: 'TEST',
-    BLOCKCHAIN: 'BLOCKCHAIN'
+    BLOCKCHAIN: 'BLOCKCHAIN',
+    TRANSACTION: 'TRANSACTION'
 };
 
 class RedisPattern {
-    constructor({ blockchain }) {
+    constructor({ blockchain, transactionPool }) {
         this.blockchain = blockchain;
+        this.transactionPool = transactionPool;
         this.publisher = redis.createClient();
         this.subscriber = redis.createClient();
         
@@ -23,10 +25,18 @@ class RedisPattern {
 
         const parsedMessage = JSON.parse(message);
 
-        // channel is blockchain, try to update the blockchain
-        if (channel === CHANNELS.BLOCKCHAIN) {
+        // to handle incoming channel
+        switch(channel) {
+             // channel is blockchain, try to update the blockchain
+            case CHANNELS.BLOCKCHAIN:
             // this check the validation and lenght of the blockchain
-            this.blockchain.replaceChain(parsedMessage);
+                this.blockchain.replaceChain(parsedMessage);
+                break;
+            case CHANNELS.TRANSACTION:
+                this.transactionPool.setTransaction(parsedMessage);
+                break;
+            default:
+                return;
         }
     }
     subscribeToChannels() {
@@ -47,6 +57,13 @@ class RedisPattern {
         this.publish({
             channel: CHANNELS.BLOCKCHAIN,
             message: JSON.stringify(this.blockchain.chain)
+        });
+    }
+
+    broadcastTransaction(transaction) {
+        this.publish({
+            channel: CHANNELS.TRANSACTION,
+            message: JSON.stringify(transaction)
         });
     }
 }

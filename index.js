@@ -3,11 +3,13 @@ const request = require('request');
 const Blockchain = require('./blockchain');
 const bodyParser = require('body-parser');
 const PubSub = require('./app/redisPattern');
-
-
+const TransactionPool = require('./wallet/transaction-pool');
+const Wallet = require('./wallet');
 const app = express();
 const blockchain = new Blockchain();
-const pubsub = new PubSub({ blockchain });
+const transactionPool = new TransactionPool();
+const wallet = new Wallet();
+const pubsub = new PubSub({ blockchain, transactionPool });
 
 const DEFAULT_PORT = 3000;
 // root node_adress is where the default port is started
@@ -33,8 +35,44 @@ app.post('/api/mineBlock', (req,res) => {
     res.redirect('/api/getBlocks');
 });
 
+app.post('/api/generateTransaction',(req, res) => {
+    const { amount, recipient } = req.body;
+
+    // check if Wallet already has an transaction in the existing transaction pool
+    let transaction = transactionPool.existingTransaction({ inputAddress: wallet.publicKey });
+
+    try {
+        if (transaction) {
+            // if a transaction from this wallet is already in existing transaction pool
+            transaction.update({ senderWallet: wallet, recipient, amount });
+        } else {
+            // if no transaction from the wallet is in the existing transaction pool
+            // to create a new transaction through the api
+            transaction = wallet.createTransaction({ recipient, amount });
+        }
+    } catch(error) {
+        // for invalid transaction return a invalid status code
+        return res.status(400).json({ type: 'error', message: error.message });
+    }
+
+    // add transaction to the transactionPool
+    transactionPool.setTransaction(transaction);
+
+    // handle transaction updates
+    // local transaction pool gets updates with new transaction-pool -data
+    pubsub.broadcastTransaction(transaction);
+
+
+    // response from api
+    res.json({ type: 'success', transaction });
+});
+
+
+app.get('/api/getTransaction-pool-map', (req, res) => {
+    res.json(transactionPool.transactionMap);
+});
 // sync local Chain with the root_node Chain
-const syncChains = () => {
+const syncWithRoot = () => {
     request({ url: `${ROOT_NODE_ADRESS}/api/getBlocks` }, (error, response, body) => {
         if(!error && response.statusCode === 200 ) {
             const rootChain = JSON.parse(body);
@@ -42,6 +80,16 @@ const syncChains = () => {
             console.log('replace chain on sync with:', rootChain);
             // we can try to replace local chain with the rootchain
             blockchain.replaceChain(rootChain);
+        }
+    });
+    // sync local transaction-pool-map with root map on connect
+    request({ url: `${ROOT_NODE_ADRESS}/api/getTransaction-pool-map`}, (error, response, body) => {
+        if(!error && response.statusCode === 200) {
+            const rootTransactionPoolMap = JSON.parse(body);
+
+            console.log('replace the transaction pool map on a sync with', rootTransactionPoolMap)
+
+            transactionPool.setMap(rootTransactionPoolMap);
         }
     });
 };
@@ -63,7 +111,7 @@ app.listen(PORT, () => {
     // only if not the root_node otherwise it would try to sync rootchain with rootchain
     if ( PORT !== DEFAULT_PORT) {
     // sync Chains on startup
-    syncChains();
+    syncWithRoot();
     }
 });
 
