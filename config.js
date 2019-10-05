@@ -17,5 +17,14 @@ const GENESIS_BLOCK = {
 
 const STARTING_BALANCE = 1000;
 
+const REWARD_INPUT = { address: '*authorzied-reward*' };
 
-module.exports = { GENESIS_BLOCK, MINE_RATE, STARTING_BALANCE };
+const MINING_REWARD = 50;
+
+module.exports = { 
+    GENESIS_BLOCK,
+    MINE_RATE,
+    STARTING_BALANCE,
+    REWARD_INPUT,
+    MINING_REWARD
+};

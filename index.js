@@ -9,7 +9,10 @@ const app = express();
 const blockchain = new Blockchain();
 const transactionPool = new TransactionPool();
 const wallet = new Wallet();
+const TransactionMiner = require(`./app/transaction-miner`);
 const pubsub = new PubSub({ blockchain, transactionPool });
+const transactionMiner = new TransactionMiner({ blockchain, transactionPool, wallet, pubsub});
+
 
 const DEFAULT_PORT = 3000;
 // root node_adress is where the default port is started
@@ -70,6 +73,12 @@ app.post('/api/generateTransaction',(req, res) => {
 
 app.get('/api/getTransaction-pool-map', (req, res) => {
     res.json(transactionPool.transactionMap);
+});
+
+app.get('/api/mine-transactions', (req, res) => {
+    transactionMiner.mineTransactions();
+
+    res.redirect('/api/getBlocks');
 });
 // sync local Chain with the root_node Chain
 const syncWithRoot = () => {
