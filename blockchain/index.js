@@ -17,7 +17,7 @@ class Blockchain {
         this.chain.push(newBlock);
     }
 
-    replaceChain(chain) {
+    replaceChain(chain, onSuccess) {
         // dont replace current chain instance with new (shorter) one
         if (chain.length <= this.chain.length) {
             console.error('Incoming chain is shorter than the current one')
@@ -28,6 +28,9 @@ class Blockchain {
             console.error('Incoming chain is NOT valid')
             return;
         }
+
+        // only if onSuccess is passed from pubsub-implementation
+        if (onSuccess) onSuccess();
         // else replace the current chain with the new one
         console.log('replacing chain with: ', chain)
         this.chain = chain;
