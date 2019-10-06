@@ -51,7 +51,12 @@ app.post('/api/generateTransaction',(req, res) => {
         } else {
             // if no transaction from the wallet is in the existing transaction pool
             // to create a new transaction through the api
-            transaction = wallet.createTransaction({ recipient, amount });
+            // by passing the Chain the Balance should be updated everytime we create a Transaction
+            transaction = wallet.createTransaction({
+                recipient,
+                amount,
+                chain: blockchain.chain 
+            });
         }
     } catch(error) {
         // for invalid transaction return a invalid status code
@@ -79,6 +84,18 @@ app.get('/api/mine-transactions', (req, res) => {
     transactionMiner.mineTransactions();
 
     res.redirect('/api/getBlocks');
+});
+
+app.get('/api/wallet-info', (req,res) => {
+    const address = wallet.publicKey
+
+    res.json({
+        address,
+        balance: Wallet.calculateBalance({
+            chain: blockchain.chain,
+            address
+        })
+    });
 });
 // sync local Chain with the root_node Chain
 const syncWithRoot = () => {
