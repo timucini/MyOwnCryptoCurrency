@@ -1,5 +1,6 @@
 const Block = require('./block');
 const Transaction = require('../wallet/transaction');
+const Walllet = require('../wallet');
 const { cryptoHash } = require('../util');
 const { REWARD_INPUT, MINING_REWARD } = require('../config')
 
@@ -18,8 +19,8 @@ class Blockchain {
         })
         this.chain.push(newBlock);
     }
-
-    replaceChain(chain, onSuccess) {
+    // the incoming validateTransaction is set by the pubsub-class
+    replaceChain(chain, validateTransaction ,onSuccess) {
         // dont replace current chain instance with new (shorter) one
         if (chain.length <= this.chain.length) {
             console.error('Incoming chain is shorter than the current one')
@@ -28,6 +29,13 @@ class Blockchain {
         // if the new longer chain is invalid, also dont replace the current chain instance
         if (!Blockchain.isValidChain(chain)) {
             console.error('Incoming chain is NOT valid')
+            return;
+        }
+
+        // only if the valideTransaction-Flag is set
+        // prevent replacing a chain, if there is manipulated transaction-data
+        if (validateTransaction && !this.validTransactionData({ chain})) {
+            console.error('Incoming chain has invalid data');
             return;
         }
 
@@ -42,6 +50,8 @@ class Blockchain {
         // iterate through blockchain
         for(let i=1; i<chain.length; i++) {
             const block = chain[i];
+            // outside of the for-loop so we can check every transaction in every block
+            const transactionSet = new Set();
             let rewardTransactionCount = 0;
             // iterate through all transaction within a block
             for (let transaction of block.data) {
@@ -65,6 +75,22 @@ class Blockchain {
                         console.error('Invalid transaction');
                         return false;
                     }
+                    // check if the input Wallet Balance is based on the history of the blockchain
+                    const trueBalance = Walllet.calculateBalance({
+                        chain: this.chain,
+                        address: transaction.input.address
+                    })
+                    // check the history based Balance with the input balance
+                    if(transaction.input.amount !== trueBalance) {
+                        console.error('Invalid input amount');
+                        return false;
+                    }
+                    if (transactionSet.has(transaction)) {
+                        console.error('An identical transaction appears more than once in the block')
+                        return false;
+                    } else {
+                        transactionSet.add(transaction)
+                    };
                 }
             }
         }

@@ -30,7 +30,8 @@ class RedisPattern {
              // channel is blockchain, try to update the blockchain
             case CHANNELS.BLOCKCHAIN:
             // this check the validation and lenght of the blockchain
-                this.blockchain.replaceChain(parsedMessage, () => {
+            // we set validateTransaction to true, so the chain gets checked for valid transactions
+                this.blockchain.replaceChain(parsedMessage, true, () => {
                     // if we replace our local chain, we also want to empty our transactionPool for this chain
                     this.transactionPool.clearBlockchainTransactions({
                         chain: parsedMessage

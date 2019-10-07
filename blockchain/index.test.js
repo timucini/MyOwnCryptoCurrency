@@ -166,6 +166,20 @@ describe('Blockchain', () => {
                 });
             });
         });
+
+        describe('and the validateTransaction flag is true', () =>{
+            it('calls validTransactionData()', () => {
+                const validTransactionDataMock = jest.fn();
+
+                blockchain.validTransactionData = validTransactionDataMock;
+
+                // the new chain needs to be longer 
+                newChain.addBlock({ data: 'something'})
+                blockchain.replaceChain(newChain.chain, true); 
+
+                expect(validTransactionDataMock).toHaveBeenCalled();
+            })
+        });
     });
 
     describe('validTransactionData()', () => {
@@ -221,12 +235,36 @@ describe('Blockchain', () => {
             });
             describe('and the transaction data has at least one malformed input',() => {
                 it('returns false and logs an error', () => {
+                    // fake input balance
+                    wallet.balance = 9000;
 
+                    const fakeOutputMap = {
+                        [wallet.publicKey]: 8900 ,
+                        fooRecipient: 100
+                    };
+
+                    const fakeTransaction = {
+                        input: {
+                            timestamp: Date.now(),
+                            amount: wallet.balance,
+                            address: wallet.publicKey,
+                            signature: wallet.sign(fakeOutputMap)
+                        },
+                        outputMap: fakeOutputMap
+                    }
+                    newChain.addBlock({data: [fakeTransaction, rewardTransaction]});
+                    expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
+                    expect(errorMock).toHaveBeenCalled();
                 });
             });
             describe('and a block contains multiple identical transaction', () => {
                 it('returns false and logs an error', () => {
-
+                    newChain.addBlock({
+                        // same transaction multiple times in the new block
+                        data: [transaction, transaction, transaction]
+                    });
+                    expect(blockchain.validTransactionData({ chain: newChain.chain })).toBe(false);
+                    expect(errorMock).toHaveBeenCalled();
                 });
             })
         });
