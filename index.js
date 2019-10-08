@@ -1,5 +1,6 @@
 const express = require('express');
 const request = require('request');
+const path = require('path')
 const Blockchain = require('./blockchain');
 const bodyParser = require('body-parser');
 const PubSub = require('./app/redisPattern');
@@ -21,6 +22,7 @@ const ROOT_NODE_ADRESS= `http://localhost:${DEFAULT_PORT}`;
 
 
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public/dist')));
 
 // express function with request(req) and result(res)
 app.get('/api/getBlocks', (req, res) => {
@@ -96,6 +98,10 @@ app.get('/api/wallet-info', (req,res) => {
             address
         })
     });
+});
+
+app.get('*', (req,res) => {
+    res.sendFile(path.join(__dirname, 'public/dist/index.html'))
 });
 // sync local Chain with the root_node Chain
 const syncWithRoot = () => {
