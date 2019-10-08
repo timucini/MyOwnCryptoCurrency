@@ -5,12 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll",
-    "index": "node index.js",
+    "start": "npm run build-public & node index.js",
     "dev": "nodemon index.js",
     "dev-peer": "cross-env GENERATE_PEER_PORT='true' nodemon index.js",
     "install-redis-windows": "cd redis && redis-server --service-install redis.windows.conf --loglevel verbose",
-    "build-public": "parcel build public/src/index.html --out-dir public/dist",
-    "dev-public": "parcel public/src/index.html --out-dir public/dist" 
+    "build-frontend": "parcel build frontend/src/index.html --out-dir frontend/dist",
+    "dev-frontend": "parcel frontend/src/index.html --out-dir frontend/dist" ,
+    "clean": "rm- rf .cache frontend/dist"
   },
   "jest": {
     "testEnvironment": "node"
