@@ -8,8 +8,9 @@
     "index": "node index.js",
     "dev": "nodemon index.js",
     "dev-peer": "cross-env GENERATE_PEER_PORT='true' nodemon index.js",
-    "install-redis-windows": "cd redis && redis-server.exe redis.windows.conf ",
-    "build-public": "parcel build public/src/index.html --out-dir public/dist"
+    "install-redis-windows": "cd redis && redis-server --service-install redis.windows.conf --loglevel verbose",
+    "build-public": "parcel build public/src/index.html --out-dir public/dist",
+    "dev-public": "parcel public/src/index.html --out-dir public/dist" 
   },
   "jest": {
     "testEnvironment": "node"
