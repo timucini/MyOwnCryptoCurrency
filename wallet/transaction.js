@@ -1,11 +1,14 @@
 const uuid = require('uuid/v1');
-const { verifySignature } = require('../util')
+const { verifySignature } = require('../util');
+const { REWARD_INPUT, MINING_REWARD} = require('../config');
 
 class Transaction {
-    constructor({ senderWallet, recipient, amount }) {
+    constructor({ senderWallet, recipient, amount, outputMap, input }) {
         this.id = uuid();
-        this.outputMap = this.createOutputMap({ senderWallet, recipient, amount});
-        this.input = this.createInput({senderWallet,outputMap: this.outputMap });
+        // if outputmap is defined we use that -> for the rewardTransaction
+        this.outputMap = outputMap || this.createOutputMap({ senderWallet, recipient, amount});
+        // if input is defindes we use that -> for the rewardTransaction
+        this.input = input || this.createInput({senderWallet,outputMap: this.outputMap });
     }
 
     createOutputMap({ senderWallet, recipient, amount }) {
@@ -25,10 +28,30 @@ class Transaction {
         };
     }
 
+    update({ senderWallet, recipient , amount}) {
+
+        if (amount > this.outputMap[senderWallet.publicKey]) {
+            throw new Error('Amount exceeds balance');
+        }
+
+        // recipient doesnt exist in the outputMap
+        if (!this.outputMap[recipient]) {
+            // new amount for the recipient = transaction  +amount
+            this.outputMap[recipient] = amount;
+        } else {
+            // recipient alredy exists in the outputMap
+            this.outputMap[recipient] = this.outputMap[recipient] + amount;
+        }
+
+        // new amount of the senderwallet = -transaction-amount
+        this.outputMap[senderWallet.publicKey] =   this.outputMap[senderWallet.publicKey] - amount;
+
+        // this creates a new signature
+        this.input = this.createInput({ senderWallet, outputMap: this.outputMap });
+    }
+
     static validTransaction(transaction) {
         const { input: { address, amount, signature}, outputMap } = transaction;
-
-       // const { address, amount, signature} = input;
 
        const outputTotal = Object.values(outputMap)
         .reduce((total, outputAmount) => total + outputAmount);
@@ -43,6 +66,14 @@ class Transaction {
         }
 
         return true;
+    }
+
+    static rewardTransaction({ minerWallet}) {
+        // add a miner-Reward for the MinerWallet publicKey
+        return new this({
+            input: REWARD_INPUT,
+            outputMap: { [minerWallet.publicKey]: MINING_REWARD }
+        });
     }
 }
 
