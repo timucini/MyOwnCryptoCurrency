@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import Block from './Block'
+import { Link } from 'react-router-dom';
+import Block from './Block';
 
 class Blocks extends Component {
     state = { blocks: [] };
@@ -10,11 +11,12 @@ class Blocks extends Component {
             .then(json => this.setState({ blocks: json}));
     }
 
-    render() {
-        console.log('this.state', this.state)
-        
+    render() {        
         return(
             <div>
+                <diV>
+                    <Link to='/'>Home</Link>
+                </diV>
                 <h3>Blocks</h3>
                 {
                     this.state.blocks.map(block => {
