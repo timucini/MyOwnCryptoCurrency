@@ -8,7 +8,7 @@ class App extends Component {
     };
 
     componentDidMount() {
-        fetch('http://localhost:3000/api/getWallet')
+        fetch(`${document.location.origin}/api/getWallet`)
             .then(response => response.json())
             .then(json => this.setState({ walletInfo: json}));
     }
@@ -25,11 +25,14 @@ class App extends Component {
                     Welcome to the Blockchain...
                 </div>
                 <br />
-                <diV>
+                <div>
                     <Link to='/blocks'>Blocks</Link>
-                </diV>
+                </div>
                 <div>
                     <Link to='/generate'>Generate Transction</Link>
+                </div>
+                <div>
+                    <Link to='/pool'>TransactionPool</Link>
                 </div>
                 <br/>
                 <div className='WalletInfo'>

@@ -4,9 +4,8 @@ import Block from './Block';
 
 class Blocks extends Component {
     state = { blocks: [] };
-
     componentDidMount() {
-        fetch('http://localhost:3000/api/getBlocks')
+        fetch(`${document.location.origin}/api/getBlocks`)
             .then(response => response.json())
             .then(json => this.setState({ blocks: json}));
     }
