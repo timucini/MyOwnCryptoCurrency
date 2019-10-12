@@ -5,9 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --watchAll",
-    "start": "npm run build-public & node index.js",
-    "dev": "nodemon index.js",
-    "dev-peer": "cross-env GENERATE_PEER_PORT='true' nodemon index.js",
+    "start": "npm run build-frontend & node index.js",
+    "dev": "cross-env ENV='development' nodemon index.js",
+    "dev-peer": "cross-env GENERATE_PEER_PORT='true' ENV='development' nodemon index.js",
     "install-redis-windows": "cd redis && redis-server --service-install redis.windows.conf --loglevel verbose",
     "build-frontend": "parcel build frontend/src/index.html --out-dir frontend/dist",
     "dev-frontend": "parcel frontend/src/index.html --out-dir frontend/dist",
