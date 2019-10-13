@@ -7,6 +7,7 @@ const PubSub = require('./app/redisPattern');
 const TransactionPool = require('./wallet/transaction-pool');
 const Wallet = require('./wallet');
 const app = express();
+const isDevelopment = process.env.ENV === 'development';
 const REDIS_URL = isDevelopment ? 'redis://127.0.0.1:6379' : 'redis://h:pa427241f95c8f6ac9722fc24f51b5ab59976a57e7ba20f4e8a0e835c6adce5f9@ec2-3-230-5-223.compute-1.amazonaws.com:6739'
 const blockchain = new Blockchain();
 const transactionPool = new TransactionPool();
@@ -14,7 +15,6 @@ const wallet = new Wallet();
 const TransactionMiner = require(`./app/transaction-miner`);
 const pubsub = new PubSub({ blockchain, transactionPool, redisUrl: REDIS_URL });
 const transactionMiner = new TransactionMiner({ blockchain, transactionPool, wallet, pubsub});
-const isDevelopment = process.env.ENV === 'development'
 
 const DEFAULT_PORT = 3000;
 // root node_adress is where the default port is started
