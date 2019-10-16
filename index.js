@@ -1,21 +1,20 @@
 const express = require('express');
 const request = require('request');
 const path = require('path')
-const Blockchain = require('./blockchain');
+const Blockchain = require('./blockchain/blockchain');
 const bodyParser = require('body-parser');
-const PubSub = require('./app/redisPattern');
+const PubSub = require('./pubsub/redisPattern');
 const TransactionPool = require('./wallet/transaction-pool');
-const Wallet = require('./wallet');
+const Wallet = require('./wallet/wallet');
 const app = express();
 const isDevelopment = process.env.ENV === 'development';
 const REDIS_URL = isDevelopment ? 'redis://127.0.0.1:6379' : 'redis://h:pa427241f95c8f6ac9722fc24f51b5ab59976a57e7ba20f4e8a0e835c6adce5f9@ec2-3-230-5-223.compute-1.amazonaws.com:6739'
 const blockchain = new Blockchain();
 const transactionPool = new TransactionPool();
 const wallet = new Wallet();
-const TransactionMiner = require(`./app/transaction-miner`);
+const TransactionMiner = require(`./mining/transaction-miner`);
 const pubsub = new PubSub({ blockchain, transactionPool, redisUrl: REDIS_URL });
 const transactionMiner = new TransactionMiner({ blockchain, transactionPool, wallet, pubsub});
-
 const DEFAULT_PORT = 3000;
 // root node_adress is where the default port is started
 const ROOT_NODE_ADRESS= `http://localhost:${DEFAULT_PORT}`;
@@ -119,7 +118,7 @@ app.get('/api/getBlocks/:id', (req, res) => {
     endIndex = endIndex < length ? endIndex : length;
 
     res.json(blocksReversed.slice(startIndex, endIndex));
-})
+});
 
 app.get('/api/getAddresses', (req, res) => {
     const addressMap = {}
@@ -127,7 +126,7 @@ app.get('/api/getAddresses', (req, res) => {
     for (let block of blockchain.chain) {
         for (let transaction of block.data) {
             const recipient = Object.keys(transaction.outputMap);
-            // return all recipient in the transction output for als transaction
+            // return all recipient in the transction output for all transactions
             // get all known recipients/address in the chain
             recipient.forEach(recipient => addressMap[recipient] = recipient);
         }

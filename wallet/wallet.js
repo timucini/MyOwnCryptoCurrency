@@ -1,6 +1,6 @@
 const Transaction = require('./transaction')
 const { STARTING_BALANCE } = require('../config');
-const { ec, cryptoHash } = require('../util');
+const { ec, cryptoHash } = require('../cryptography/cryptography');
 
 
 class Wallet {

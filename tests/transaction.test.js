@@ -1,6 +1,6 @@
-const Transaction = require('./transaction');
-const Wallet = require('./index');
-const { verifySignature } = require('../util');
+const Transaction = require('../wallet/transaction');
+const Wallet = require('../wallet/wallet');
+const { verifySignature } = require('../cryptography/cryptography');
 const { REWARD_INPUT, MINING_REWARD } = require('../config');
 
 describe('Transaction', () => {

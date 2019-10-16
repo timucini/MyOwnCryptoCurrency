@@ -1,25 +1,18 @@
-// time in milisecs
-const MINE_RATE= 1000;
 
-// init diff for genesis data
-const INITIAL_DIFFICULTY = 3;
-
-
-//hard-coded global Values
+//first block (genesis Block)
 const GENESIS_BLOCK = {
     timestamp: 1,
     lastHash: '-----',
-    hash: 'hash-one',
-    difficulty: INITIAL_DIFFICULTY,
+    hash: 'Genesis_Block',
+    difficulty: 4,
     nonce: 0,
     data: []
 };
-
-const STARTING_BALANCE = 1000;
-
+// time in milisecs
+const MINE_RATE= 1000;
+const STARTING_BALANCE = 2500;
 const REWARD_INPUT = { address: '*authorzied-reward*' };
-
-const MINING_REWARD = 50;
+const MINING_REWARD = 25;
 
 module.exports = { 
     GENESIS_BLOCK,

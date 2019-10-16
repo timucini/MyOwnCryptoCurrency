@@ -1,7 +1,7 @@
 // to improve hash-algorithm its better to use the binary form, so we can adjust the difficulty more granular  
 const hexToBinary = require('hex-to-binary');
 const { GENESIS_BLOCK, MINE_RATE } = require('../config');
-const { cryptoHash } = require('../util');
+const { cryptoHash } = require('../cryptography/cryptography');
 
 
 class Block {

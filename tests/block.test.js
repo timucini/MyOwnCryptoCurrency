@@ -1,7 +1,7 @@
 const hexToBinary = require('hex-to-binary');
-const Block = require('./block'); 
+const Block = require('../block/block'); 
 const { GENESIS_BLOCK, MINE_RATE } = require('../config');
-const { cryptoHash } = require('../util');
+const { cryptoHash } = require('../cryptography/cryptography');
 
 describe('Block', () => {
     const timestamp = 2000;
