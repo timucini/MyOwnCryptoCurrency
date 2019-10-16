@@ -101,6 +101,41 @@ app.get('/api/getWallet', (req,res) => {
     });
 });
 
+app.get('/api/getLength', (req,res) => {
+    res.json(blockchain.chain.length);
+});
+
+app.get('/api/getBlocks/:id', (req, res) => {
+    const { id } = req.params;
+
+    const { length } = blockchain.chain;
+    // with slice() we can copy the blockchain and reverse the copy
+    const blocksReversed = blockchain.chain.slice().reverse();
+
+    let startIndex = (id-1) * 5;
+    let endIndex = id * 5;
+
+    startIndex = startIndex < length ? startIndex : length;
+    endIndex = endIndex < length ? endIndex : length;
+
+    res.json(blocksReversed.slice(startIndex, endIndex));
+})
+
+app.get('/api/getAddresses', (req, res) => {
+    const addressMap = {}
+
+    for (let block of blockchain.chain) {
+        for (let transaction of block.data) {
+            const recipient = Object.keys(transaction.outputMap);
+            // return all recipient in the transction output for als transaction
+            // get all known recipients/address in the chain
+            recipient.forEach(recipient => addressMap[recipient] = recipient);
+        }
+    }
+    console.log(addressMap)
+    res.json(Object.keys(addressMap));
+});
+
 app.get('*', (req,res) => {
     res.sendFile(path.join(__dirname, 'frontend/dist/index.html'))
 });
