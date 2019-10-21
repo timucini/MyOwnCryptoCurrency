@@ -1,6 +1,5 @@
 const hexToBinary = require('hex-to-binary');
 const Block = require('../block/block'); 
-const { GENESIS_BLOCK, MINE_RATE } = require('../config');
 const { cryptoHash } = require('../cryptography/cryptography');
 
 describe('Block', () => {
@@ -11,7 +10,16 @@ describe('Block', () => {
     const nonce = 1;
     const difficulty = 1;
     const block = new Block({ timestamp, lastHash, hash, data, nonce, difficulty });
-
+    const firstBlock = {
+        timestamp: 1,
+        lastHash: '-----',
+        hash: 'Genesis_Block',
+        difficulty: 4,
+        nonce: 0,
+        data: []
+    };
+    // time in milisecs
+    const mineRate = 1000;
 
 
 
@@ -35,7 +43,7 @@ describe('Block', () => {
         });
         // test if genesis block return the genesis data from config.js
         it('returns the genesis data', () => {
-            expect(genesisBlock).toEqual(GENESIS_BLOCK);
+            expect(genesisBlock).toEqual(firstBlock);
         })
     })
     describe('mineBlock()', () => {
@@ -88,13 +96,13 @@ describe('Block', () => {
            expect(Block.adjustDifficulty({ 
                // mining a new block was shorten than the expected mine rate ( in this test 100 milisecs) 
                // so it the new difficulty for a new mined block should be higher than before
-               originalBlock: block, timestamp: block.timestamp + MINE_RATE - 100 })).toEqual(block.difficulty+1); 
+               originalBlock: block, timestamp: block.timestamp + mineRate - 100 })).toEqual(block.difficulty+1); 
         });
         it('should lower difficulty for a new mined block', () =>{
             expect(Block.adjustDifficulty({
                  // mining a new block was longer than the expected mine rate ( in this test 100 milisecs) 
                // so it the new difficulty for a new mined block should be lower than before
-                originalBlock: block, timestamp: block.timestamp + MINE_RATE + 100 })).toEqual(block.difficulty-1);
+                originalBlock: block, timestamp: block.timestamp + mineRate + 100 })).toEqual(block.difficulty-1);
         });
         it('should have a lower limit of 1', () => {
             block.difficulty = -1;

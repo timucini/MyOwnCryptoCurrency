@@ -1,6 +1,5 @@
 // to improve hash-algorithm its better to use the binary form, so we can adjust the difficulty more granular  
 const hexToBinary = require('hex-to-binary');
-const { GENESIS_BLOCK, MINE_RATE } = require('../config');
 const { cryptoHash } = require('../cryptography/cryptography');
 
 
@@ -14,9 +13,17 @@ class Block {
         this.difficulty = difficulty;
     }
 
-    //first block= genesis_block from config.js
+    //first block= Genesis Block
     static genesis() {
-        return new this(GENESIS_BLOCK);
+        const genesisBlock = {
+            timestamp: 1,
+            lastHash: '-----',
+            hash: 'Genesis_Block',
+            difficulty: 4,
+            nonce: 0,
+            data: []
+        };
+        return new this(genesisBlock);
     }
     // the new Block 
     static mineBlock({ lastBlock, data}) {
@@ -59,6 +66,8 @@ class Block {
         })
     }
     static adjustDifficulty({ originalBlock, timestamp}) {
+        // time in milisecs
+        const mineRate= 1000;
         // use the difficulty of the last block
         const { difficulty } = originalBlock;
         // compare the difficulty of a last block with the timestamp of a new generated block 
@@ -67,7 +76,7 @@ class Block {
 
         if (difficulty < 1) return 1;
 
-        if (difference > MINE_RATE ) return difficulty - 1;
+        if (difference > mineRate ) return difficulty - 1;
         return difficulty + 1;
     }
 } 

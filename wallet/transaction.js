@@ -10,7 +10,31 @@ class Transaction {
         // if input is defindes we use that -> for the rewardTransaction
         this.input = input || this.createInput({senderWallet,outputMap: this.outputMap });
     }
+    static validTransaction(transaction) {
+        const { input: { address, amount, signature}, outputMap } = transaction;
 
+       const outputTotal = Object.values(outputMap)
+        .reduce((total, outputAmount) => total + outputAmount);
+
+        if(amount !== outputTotal) {
+            console.error(`Invalid transaction from ${address}`);
+            return false;
+        }
+        if(!verifySignature({ publicKey: address, data: outputMap, signature})) {
+            console.error(`Invalid signature from ${address}`);
+            return false;
+        }
+
+        return true;
+    }
+
+    static rewardTransaction({ minerWallet}) {
+        // add a miner-Reward for the MinerWallet publicKey
+        return new this({
+            input: REWARD_INPUT,
+            outputMap: { [minerWallet.publicKey]: MINING_REWARD }
+        });
+    }
     createOutputMap({ senderWallet, recipient, amount }) {
         const outputMap = {};
 
@@ -48,32 +72,6 @@ class Transaction {
 
         // this creates a new signature
         this.input = this.createInput({ senderWallet, outputMap: this.outputMap });
-    }
-
-    static validTransaction(transaction) {
-        const { input: { address, amount, signature}, outputMap } = transaction;
-
-       const outputTotal = Object.values(outputMap)
-        .reduce((total, outputAmount) => total + outputAmount);
-
-        if(amount !== outputTotal) {
-            console.error(`Invalid transaction from ${address}`);
-            return false;
-        }
-        if(!verifySignature({ publicKey: address, data: outputMap, signature})) {
-            console.error(`Invalid signature from ${address}`);
-            return false;
-        }
-
-        return true;
-    }
-
-    static rewardTransaction({ minerWallet}) {
-        // add a miner-Reward for the MinerWallet publicKey
-        return new this({
-            input: REWARD_INPUT,
-            outputMap: { [minerWallet.publicKey]: MINING_REWARD }
-        });
     }
 }
 

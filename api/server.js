@@ -1,42 +1,11 @@
 const express = require('express');
-const request = require('request');
-const path = require('path')
-const Blockchain = require('./blockchain/blockchain');
-const bodyParser = require('body-parser');
-const PubSub = require('./pubsub/redisPattern');
-const TransactionPool = require('./wallet/transaction-pool');
-const Wallet = require('./wallet/wallet');
-const testscript = require('./scripts/testblocks');
 const app = express();
-const isDevelopment = process.env.ENV === 'development';
-const REDIS_URL = isDevelopment ? 'redis://127.0.0.1:6379' : 'redis://h:pa427241f95c8f6ac9722fc24f51b5ab59976a57e7ba20f4e8a0e835c6adce5f9@ec2-3-230-5-223.compute-1.amazonaws.com:6739'
-const blockchain = new Blockchain();
-const transactionPool = new TransactionPool();
-const wallet = new Wallet();
-const TransactionMiner = require(`./mining/transaction-miner`);
-const pubsub = new PubSub({ blockchain, transactionPool, redisUrl: REDIS_URL });
-const transactionMiner = new TransactionMiner({ blockchain, transactionPool, wallet, pubsub});
-const DEFAULT_PORT = 3000;
-// root node_adress is where the default port is started
-const ROOT_NODE_ADRESS= `http://localhost:${DEFAULT_PORT}`;
-
-
-
-app.use(bodyParser.json());
-app.use(express.static(path.join(__dirname, 'frontend/dist')));
 
 // express function with request(req) and result(res)
 app.get('/api/getBlocks', (req, res) => {
     
     // result is the blockchain.chain as a json
     res.json(blockchain.chain);
-});
-app.get('/api/downloadBlockchain', (req, res) => {
-    res.json(blockchain)
-});
-
-app.get('/api/generateKey', (req,res) => {
-
 });
 
 app.post('/api/mineBlock', (req,res) => {
@@ -147,56 +116,3 @@ app.get('/api/getAddresses', (req, res) => {
 app.get('*', (req,res) => {
     res.sendFile(path.join(__dirname, 'frontend/dist/index.html'))
 });
-// sync local Chain with the root_node Chain
-const syncWithRoot = () => {
-    request({ url: `${ROOT_NODE_ADRESS}/api/getBlocks` }, (error, response, body) => {
-        if(!error && response.statusCode === 200 ) {
-            const rootChain = JSON.parse(body);
-
-            console.log('replace chain on sync with:', rootChain);
-            // we can try to replace local chain with the rootchain
-            blockchain.replaceChain(rootChain);
-        }
-    });
-    // sync local transaction-pool-map with root map on connect
-    request({ url: `${ROOT_NODE_ADRESS}/api/getTransaction-pool-map`}, (error, response, body) => {
-        if(!error && response.statusCode === 200) {
-            const rootTransactionPoolMap = JSON.parse(body);
-
-            console.log('replace the transaction pool map on a sync with', rootTransactionPoolMap)
-
-            transactionPool.setMap(rootTransactionPoolMap);
-        }
-    });
-};
-
-if(isDevelopment) {
-    // generate two random wallets for test purpose
-    const walletOne = new Wallet();
-    const walletTwo = new Wallet();
-    // testscript to generate some blocks with different transactions
-    testscript.generate({walletOne, walletTwo, blockchain, transactionPool, transactionMiner, wallet });
-}
-
-
-// if default port is blocked
-let PEER_PORT;
-
-// when a peers connect locally we take another port
-if (process.env.GENERATE_PEER_PORT === 'true') {
-    // peerport ist default port +-random 1000
-    PEER_PORT = DEFAULT_PORT + Math.ceil(Math.random() * 1000);
-}
-
-const PORT = process.env.PORT || PEER_PORT || DEFAULT_PORT;
-// express function with listening at port localhost:Port
-app.listen(PORT, () => {
-    console.log('started at port:'+PORT);
-    
-    // only if not the root_node otherwise it would try to sync rootchain with rootchain
-    if ( PORT !== DEFAULT_PORT) {
-    // sync Chains on startup
-    syncWithRoot();
-    }
-});
-

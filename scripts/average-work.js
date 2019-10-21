@@ -1,5 +1,6 @@
 const Blockchain = require('../blockchain/blockchain');
 
+
 const blockchain = new Blockchain();
 
 blockchain.addBlock({ data: 'inital'});
