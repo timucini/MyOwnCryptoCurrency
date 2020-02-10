@@ -12,6 +12,15 @@ class Wallet {
 
         // encode key to its hex-form
         this.publicKey = this.keyPair.getPublic().encode('hex');
+
+        // have to be safed securely !!
+        this.privateKey = this.keyPair.getPrivate();
+    }
+    checkPrivateKey(inputKey) {
+        if (inputKey === this.privateKey.toString()) {
+            return true;
+        }
+        return false;
     }
     sign(data) {
         // data is the outputmap for a transaction

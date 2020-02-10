@@ -67,7 +67,7 @@ class Block {
     }
     static adjustDifficulty({ originalBlock, timestamp}) {
         // time in milisecs
-        const mineRate= 1000;
+        const mineRate= 30000;
         // use the difficulty of the last block
         const { difficulty } = originalBlock;
         // compare the difficulty of a last block with the timestamp of a new generated block 

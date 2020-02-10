@@ -21,7 +21,7 @@ class TransactionPool {
     }
 
     validTransactions() {
-        // filter all the transactions from the transactionpool, for that we use the transaction validTransaction-method
+        // filter all the transactions from the transactionpool, for that the transaction validTransaction-method is used
          return Object.values(this.transactionMap).filter(
             transaction => Transaction.validTransaction(transaction)
             );
@@ -35,7 +35,7 @@ class TransactionPool {
         // skip genesis block, iterate to every block
         for (let i=1; i<chain.length; i++) {
             const block= chain[i]
-            // go through every transaction of the blocks data
+            // go through every transaction of the block-data
             for(let transaction of block.data) {
                 // if the transactionmap have the transaction id
                 if(this.transactionMap[transaction.id]) {

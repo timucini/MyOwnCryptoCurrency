@@ -5,9 +5,9 @@ const { REWARD_INPUT, MINING_REWARD} = require('../config');
 class Transaction {
     constructor({ senderWallet, recipient, amount, outputMap, input }) {
         this.id = uuid();
-        // if outputmap is defined we use that -> for the rewardTransaction
+        // if outputMap is defined, defined one will be used (case for the reward-transaction)
         this.outputMap = outputMap || this.createOutputMap({ senderWallet, recipient, amount});
-        // if input is defindes we use that -> for the rewardTransaction
+        // if input is defined, defined one will be used (case for the reward-transaction)
         this.input = input || this.createInput({senderWallet,outputMap: this.outputMap });
     }
     static validTransaction(transaction) {
@@ -29,7 +29,7 @@ class Transaction {
     }
 
     static rewardTransaction({ minerWallet}) {
-        // add a miner-Reward for the MinerWallet publicKey
+        // add a miner-Reward for the Miner-Wallet publicKey
         return new this({
             input: REWARD_INPUT,
             outputMap: { [minerWallet.publicKey]: MINING_REWARD }
@@ -58,16 +58,16 @@ class Transaction {
             throw new Error('Amount exceeds balance');
         }
 
-        // recipient doesnt exist in the outputMap
+        // recipient doesn't exist in the outputMap
         if (!this.outputMap[recipient]) {
-            // new amount for the recipient = transaction  +amount
+            // new amount for the recipient = transaction + amount
             this.outputMap[recipient] = amount;
         } else {
             // recipient alredy exists in the outputMap
             this.outputMap[recipient] = this.outputMap[recipient] + amount;
         }
 
-        // new amount of the senderwallet = -transaction-amount
+        // new amount of the senderwallet = transaction-amount
         this.outputMap[senderWallet.publicKey] =   this.outputMap[senderWallet.publicKey] - amount;
 
         // this creates a new signature

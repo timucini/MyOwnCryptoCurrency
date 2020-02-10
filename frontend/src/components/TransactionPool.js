@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import Transaction from './Transaction';
 import history from '../history';
@@ -45,7 +44,7 @@ class TransactionPool extends Component {
         return(
             <div className='TransactionPool'>
                 <div>
-                    <Link to=''>Home</Link>
+                <Button  bsStyle="primary" href="/" bsSize="large">Back</Button>
                 </div>
                 <h3>Transaction Pool</h3>
                 {
@@ -60,7 +59,7 @@ class TransactionPool extends Component {
                 }
                 <hr />
                 <Button
-                bsStyle="danger"
+                bsStyle="primary"
                 onClick={this.mineTransactions}
                 >
                     Mine Transactions

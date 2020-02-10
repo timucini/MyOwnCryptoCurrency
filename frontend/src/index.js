@@ -6,7 +6,8 @@ import './index.css';
 import history from './history';
 import Blocks from './components/Blocks';
 import GenerateTransaction from './components/GenerateTransaction';
-import TransactionPool from './components/TransactionPool'
+import TransactionPool from './components/TransactionPool';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 render(
     <Router history={history}>

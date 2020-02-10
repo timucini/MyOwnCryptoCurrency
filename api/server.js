@@ -8,6 +8,7 @@ app.get('/api/getBlocks', (req, res) => {
     res.json(blockchain.chain);
 });
 
+
 app.post('/api/mineBlock', (req,res) => {
     const { data } = req.body;
 
@@ -19,7 +20,11 @@ app.post('/api/mineBlock', (req,res) => {
 });
 
 app.post('/api/generateTransaction',(req, res) => {
-    const { amount, recipient } = req.body;
+    const { amount, recipient, inputKey } = req.body;
+    
+    if (wallet.checkPrivateKey(inputKey) === false) {
+        return res.status(400).json({ type: 'error', message: 'Wrong private Key!' });
+    }
 
     // check if Wallet already has an transaction in the existing transaction pool
     let transaction = transactionPool.existingTransaction({ inputAddress: wallet.publicKey });
@@ -67,16 +72,18 @@ app.get('/api/mine-transactions', (req, res) => {
 });
 
 app.get('/api/getWallet', (req,res) => {
-    const address = wallet.publicKey
-
+    const address = wallet.publicKey;
+    const privateKey = wallet.privateKey;
     res.json({
-        address,
+        address: address,
+        privateKey: privateKey,
         balance: Wallet.calculateBalance({
             chain: blockchain.chain,
             address
         })
     });
 });
+
 
 app.get('/api/getLength', (req,res) => {
     res.json(blockchain.chain.length);

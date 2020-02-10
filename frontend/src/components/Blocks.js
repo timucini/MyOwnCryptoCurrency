@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import Block from './Block';
 
 class Blocks extends Component {
@@ -23,9 +22,8 @@ class Blocks extends Component {
         return(
             <div>
                 <div>
-                    <Link to='/'>Home</Link>
+                    <Button  bsStyle="primary" href="/" bsSize="large">Back</Button>
                 </div>
-                <h3>Blocks</h3>
                 <div>
                     {
                         // math.ceil to round value and make the rounded values to the key of the array to avoid undefined values
@@ -34,9 +32,9 @@ class Blocks extends Component {
 
                             const page= key+1
 
-                            return(
+                            return( 
                                 <span key={key} onClick={this.fetchBlocks(page)}>
-                                    <Button bsSize="small" bsStyle="danger">{page}</Button>{'  '}
+                                    <Button bsSize="small" bsStyle="primary">{page}</Button>{'  '}
                                 </span>
                             )
                         })

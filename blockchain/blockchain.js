@@ -58,12 +58,12 @@ class Blockchain {
     }
     // the incoming validateTransaction is set by the pubsub-class
     replaceChain(chain, validateTransaction ,onSuccess) {
-        // dont replace current chain instance with new (shorter) one
+        // don't replace current chain instance with new (shorter) one
         if (chain.length <= this.chain.length) {
             console.error('Incoming chain is shorter than the current one')
             return;
         }
-        // if the new longer chain is invalid, also dont replace the current chain instance
+        // if the new longer chain is invalid, also don't replace the current chain instance
         if (!Blockchain.isValidChain(chain)) {
             console.error('Incoming chain is NOT valid')
             return;

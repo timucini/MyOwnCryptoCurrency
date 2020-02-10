@@ -1,3 +1,6 @@
+/*
+  PubSub is a cloud-based alternativ to Redis, currently not used
+*/ 
 const PubNub = require('pubnub');
 
 const credentials = {

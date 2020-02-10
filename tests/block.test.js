@@ -19,7 +19,7 @@ describe('Block', () => {
         data: []
     };
     // time in milisecs
-    const mineRate = 1000;
+    const mineRate = 30000;
 
 
 
